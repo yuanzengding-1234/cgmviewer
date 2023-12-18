@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+ 
+
+
+
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="css/contextStyle.css">
+	<link href="css/bootstrap.css" rel="stylesheet">
+	<link href="css/bootstrap-colorpicker.css" rel="stylesheet">
+
+
+	<style>
+
+
+#drop_zone {
+			position: absolute;
+			left:0;
+			right:0;
+		 
+			margin-left:auto;
+			margin-right:auto;
+			 
+		 
+		}
+
+		.tooltip-inner {
+			white-space: pre-wrap;
+	
+		}
+	
+		.modeless {
+			top: 60px;
+			left: 0px;
+			width: 300px;
+	
+		}
+	
+		@font-face {
+			font-family: 'Material Icons';
+			font-style: normal;
+			font-weight: 400;
+			src: url(css/MaterialIcons-Regular.eot);
+			/* For IE6-8 */
+			src: local('Material Icons'),
+				local('MaterialIcons-Regular'),
+				url(css/MaterialIcons-Regular.ttf) format('truetype');
+		}
+	
+		.material-icons {
+			font-family: 'Material Icons';
+			font-weight: normal;
+			font-style: normal;
+			font-size: 24px;
+			/* Preferred icon size */
+			display: inline-block;
+			line-height: 1;
+			text-transform: none;
+			letter-spacing: normal;
+			word-wrap: normal;
+			white-space: nowrap;
+			direction: ltr;
+	
+			/* Support for all WebKit browsers. */
+			-webkit-font-smoothing: antialiased;
+			/* Support for Safari and Chrome. */
+			text-rendering: optimizeLegibility;
+	
+			/* Support for Firefox. */
+			-moz-osx-font-smoothing: grayscale;
+	
+			/* Support for IE. */
+			font-feature-settings: 'liga';
+		}
+	</style>
+
+
+
+	<title>CGM VIEW</title>
+
+	 
+	<script type='text/javascript' src="js/jquery-3.5.1.js"></script>
+	<script type='text/javascript' src="js/jquery-ui.min.js"></script>
+	 
+	 
+	<script type='text/javascript' src='js/cgmparse.js'></script>
+	<!--script type="module" src="dopscgm.js"> </script-->
+	 
+    <script type='text/javascript' src='js/pako.js'></script>
+
+
+	<script type='text/javascript' src='js/view.js'></script>
+	<script type='text/javascript' src='js/context_callbacks.js'></script>
+	<script type='text/javascript' src='js/fileopen.js'></script>
+	<script type='text/javascript' src='js/parsexml.js'></script>
+	<script type="text/javascript" src="js/drawobjects.js"></script>
+	<script type="text/javascript" src="js/sdiapi.js"></script>
+	<script type="text/javascript" src="js/popper.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-colorpicker.js"></script>
+	<script type="text/javascript" src="js/callout.js"></script>
+	<script type='text/javascript' src='js/tiff.js-master/tiff.min.js'></script>
+	<script>
+		 $(function () {
+			  $('#inputFillColor').colorpicker({
+			color: '#FFFF00',
+			inline: false,
+			container: true
+		 
+			
+		  }) ;
+		  
+		});
+		$(function () {
+			  $('#inputStrokeColor').colorpicker({
+			color: '#0000FF',
+			inline: false,
+			container: true
+		 
+			
+		  }) ;
+		  
+		});
+
+	  </script>
+</head>
+
+<body onload="initapp(1680,1270)">
+
+	<nav class="navbar navbar-expand-lg navbar-dark fixed-top"
+		style="background: linear-gradient(to right,rgba(34, 68, 85, 1.0), rgba(119, 136, 153, 1.0), rgba(68, 102, 119, 1.0), rgba(0, 51, 68, 1.0));">
+		<a class="navbar-brand"><img src="images/sdi-logo-167x30.svg" class="img-fluid"
+				alt="SDI Software logo"></a>
+
+		<div class="btn-toolbar ml-auto  " role="toolbar" aria-label="Tool bar">
+			<div class="btn-group mr-1 border border-white rounded" role="group" aria-label="View controls">
+				<button type="button" onclick="setfit()" Title="Fit VDC extent on screen"
+					class="btn btn-secondary btn-lg"><i
+						class="material-icons md-18 align-text-top">fit_screen</i></button>
+				<button type="button" onclick="setzoomin()" Title="Zoom in " class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">zoom_in</i></button>
+				<button type="button" onclick="setzoomout()" Title="Zoom out"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">zoom_out</i></button>
+				<button type="button" onclick="setpanmode()" Title="Pan" class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">pan_tool</i></button>
+				<button type="button" onclick="setzoom()" Title="Select area" class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">picture_in_picture</i></button>
+
+			</div>
+<!-- (REDLINE) menu ON/OFF -->
+			<div class="btn-group mr-1" role="group" aria-label="state">
+				<button Title="Open draw menu" type="button" onclick="addDrawTools()"
+					class="btn btn-outline-light btn-sm"><i
+						class="material-icons md-18 align-text-top">more_horiz</i></button>
+			</div>
+<!-- (REDLINE) or Drawing tools menu -->
+
+			<div id="drawonoff"  class="btn-group mr-1 border border-white rounded"  style="display:none" role="group" aria-label="Redline controls">
+				 
+				<button Title="Select mode" type="button" onclick="startSelection()"
+				class="btn btn-secondary btn-sm"><i
+					class="material-icons md-18 align-text-top">north_west</i></button>
+			
+				<button type="button" onclick="startDrawing('FreeFormLine2')" Title="Draw line. Hold shift for orthogonal line"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">horizontal_rule</i></button>
+				<button type="button" onclick="startDrawing('FreeFormLine')" Title="Free form line"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">gesture</i></button>
+				<button type="button" onclick="startDrawing('Circle')" Title="Draw circle"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">panorama_fish_eye</i></button>
+				<button type="button" onclick="startDrawing('Rectangle')" Title="Draw rectangle"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">crop_square</i></button>
+				<button type="button" onclick="startDrawing('Text2')" Title="Draw text"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">text_fields</i></button>
+				<button type="button" onclick="startDrawing('Text')" Title="Place Note"
+						class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">chat</i></button>
+						
+				<button type="button" onclick="startDrawing('Callout')" Title="Add Callout"
+						class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">comment</i></button>
+
+				<button Title="Delete object" type="button" onclick="deleteObject()"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">delete_forever</i></button>
+			 
+			 
+				<button Title="Undo delete object" type="button" onclick="undo_delete_Object()"
+					class="btn btn-secondary btn-sm"><i
+						class="material-icons md-18 align-text-top">undo</i></button>
+
+			</div>
+
+
+
+			 <div class="btn-group mr-1" role="group" aria-label="state">
+				<button Title="Increase canvas size" type="button" onclick="modSetCanvasSize(50,50)"
+					class="btn btn-outline-light btn-sm"><i
+						class="material-icons md-18 align-text-top">north</i></button>
+			</div> 
+			<div class="btn-group mr-1" role="group" aria-label="state">
+				<button Title="Decrease canvas size" type="button" onclick="modSetCanvasSize(-50,-50)"
+					class="btn btn-outline-light btn-sm"><i
+						class="material-icons md-18 align-text-top">south</i></button>
+			</div> 
+			
+			<div class="btn-group mr-1" role="group" aria-label="state">
+				<button Title="Save Red Line" type="button" onclick="sdiSaveRedLineTest()"
+					class="btn btn-outline-light btn-sm"><i
+						class="material-icons md-18 align-text-top">content_copy</i></button>
+			</div> 
+			<div class="btn-group mr-1" role="group" aria-label="state">
+				<button Title="Load Red Line" type="button" onclick="sdiLoadRedLineTest()"
+					class="btn btn-outline-light btn-sm"><i
+						class="material-icons md-18 align-text-top">content_paste</i></button>
+			</div> 
+
+			<div class="btn-group mr-1" role="group" aria-label="Preferences">
+				<button Title="Set preferences" type="button" onclick="getObjectAttributes()"
+					class="btn btn-light btn-sm" data-toggle="modal" data-target="#AttributeSettings"><i
+						class="material-icons md-18 align-text-top">settings</i></button>
+			</div>
+			<div class="btn-group mr-1" role="group" aria-label="Save markup">
+				<button Title="Save drawing and markup" type="button" onclick="saveRedline()" Title="Save Red line"
+					class="btn btn-success btn-sm"><a id="download_link" download="reddline.svg" href=""><i
+							class="material-icons md-18 align-text-top text-white">save</i></a></button>
+			</div>
+			<!--div class="btn-group mr-1" role="group" aria-label="Save markup">
+				<button Title="Save drawing and markup" type="button"  Title="Save Red line"
+					class="btn btn-success btn-sm"><a id="download_link_2" download="reddline.cgm" href=""><i
+							class="material-icons md-18 align-text-top text-white">save</i></a></button>
+					</div-->
+		</div>
+
+
+
+	 
+		<form class="form-inline my-1 ml-auto" action="javascript:void(0);">
+			<normal class="text-white ml-2 mr-3">Choose cgm, select hotspots</normal>
+			<select class="custom-select custom-select-sm mr-3" id='menuitem2' onchange="highlightID(this.value)">
+				<option value="allhotspots" selected>All Hot Spots</option>
+			</select>
+			<button class="btn btn-sm btn-secondary mr-2" title="Clear hot spot links" data-placement="left"
+				onclick="clearlinks()">Erase</button>
+			<input type="file" id="filein" onchange='openfile()' multiple class="btn btn-sm btn-outline-light mr-2 my-1"
+				data-toggle="tooltip" data-placement="right" title="Browse for CGM">
+			<button class="btn btn-sm btn-secondary mr-2  my-1 ml-2" data-toggle="tooltip"  
+				title="Reset scale, clear canvas" data-placement="left" onclick="updateScreen()">Clear Page</button>
+			 
+		</form>
+	</nav>
+
+<!-- Preferences or drawing attribute MENU -->
+	<div class="modal modeless " id="AttributeSettings" data-focus="false" data-keyboard="false" data-backdrop="false"
+		tabindex="-1" role="dialog" aria-labelledby="AttributeSettings" aria-hidden="true">
+		<div class="modal-dialog" role="document" data-keyboard="false" data-backdrop="false">
+			<div class="modal-content" data-keyboard="false" data-backdrop="false">
+				<div class="modal-header" data-keyboard="false" data-backdrop="false">
+					<h4 class="modal-title" id="AttributeSettingsLabel">Settings</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span
+								aria-hidden="true">&times;</span> </button>
+				</div>
+				<div class="modal-body" id="attributesWindow">
+					<h6>Object Attributes</h6>
+						<div class="form-row">
+							<div class="form-group col-auto">
+								<label Title="Stroke color, line, edges" for="inputStrokeColor"><i
+										class="material-icons md-18 align-text-top">border_color</i></label>
+										<div id="inputStrokeColor" class="input-group" title="Using horizontal option">
+											<input id="inputStrokeColor" type="text" class="form-control input-lg" value="#0000FF"/>
+											  <span id="inputStrokeColor" class="input-group-append">
+												<span id="inputStrokeColor" class="input-group-text colorpicker-input-addon"><i></i></span>
+											  </span>	
+											</div>
+								<!--select id="inputStrokeColor" class="form-control form-control-sm">
+									<option value="#FF0000" selected>Red</option>
+									<option value="#00FF00">Green</option>
+									<option value="#0000FF">Blue</option>
+									<option value="#000000">Black</option>
+									<option value="#FFFFFF">White</option>
+									<option value="#00FFFF">Cyan</option>
+									<option value="#FF00FF">Magenta</option>
+									<option value="#FFFF00">Yellow</option>
+								</select-->
+							</div>
+							<div class="form-group col-auto">
+
+								<label Title="Fill color" for="cp0"><i
+										class="material-icons md-18 align-text-top">format_color_fill</i></label>
+										<div class="form-check form-check-inline">
+											<input class="form-check-input" type="checkbox" id="nofillmode"
+											>
+											<label class="form-check-label" for="nofillmode"><i
+													class="align-text-top">No Fill</i></label>
+										</div>
+									<div id="inputFillColor" class="input-group" title="Using horizontal option">
+									<input id="inputFillColor" type="text" class="form-control input-lg" value="#FFFF00"/>
+									  <span id="inputFillColor" class="input-group-append">
+										<span id="inputFillColor" class="input-group-text colorpicker-input-addon"><i></i></span>
+									  </span>	
+									</div>	 
+
+								
+							</div>
+							<div class="form-group col-auto">
+								<label Title="Stroke thickness " for="inputStrokeThickness"><i
+										class="material-icons md-18 align-text-top">line_weight</i></label>
+								<select id="inputStrokeThickness" class="form-control form-control-sm">
+									<option value=2 selected>2</option>
+									<option value=0.1>.1</option>
+									<option value=0.3>.3</option>
+									<option value=0.5>.5</option>
+									<option value=1>1</option>
+									<option value=2>2</option>
+									<option value=3>3</option>
+									<option value=5>5</option>
+									<option value=10>10</option>
+									<option value=15>15</option>
+								</select>
+							</div>
+							<div class="form-group col-auto">
+								<label Title="Stroke dash style" for="inputStrokeStyle"><i
+										class="material-icons md-18 align-text-top">line_style</i></label>
+								<select id="inputStrokeStyle" class="form-control form-control-sm">
+									<option value="solid" selected>solid</option>
+									<option value="dashed">dashed</option>
+									<option value="dotted">dotted</option>
+									<option value="center">centerline</option>
+								</select>
+							</div>
+						</div>
+						<hr />
+						
+						<h6>Text Attributes</h6>
+							<div class="form-row">
+								<div class="form-group col-auto">
+									<label Title="Font name " for="inputFontName"><i
+											class="material-icons md-18 align-text-top">title</i></label>
+									<select id="inputFontName" class="form-control form-control-sm">
+										<option value="Arial" selected>Arial</option>
+										<option value="Bookman">Bookman</option>
+										<option value="Courier">Courier</option>
+										<option value="Times">Times</option>
+										<option value="century">century</option>
+									</select>
+								</div>
+								<div class="form-group col-auto">
+									<label Title="Text height" for="inputFontSize"><i
+											class="material-icons md-18 align-text-top">format_size</i></label>
+									<select id="inputFontSize" class="form-control form-control-sm">
+										<option value=8>8</option>
+										<option value=10>10</option>
+										<option value=12>12</option>
+										<option value=14>14</option>
+										<option value=16>16</option>
+										<option value=20 selected>20</option>
+										<option value=24>24</option>
+										<option value=32>32</option>
+										<option value=64>64</option>
+									</select>
+								</div>
+								<div class="form-group col-auto">
+									<label Title="Text color" for="inputFontColor"><i
+											class="material-icons md-18 align-text-top">format_color_text</i></label>
+									<select id="inputFontColor" class="form-control form-control-sm">
+										<option value="#FF0000" selected>Red</option>
+										<option value="#00FF00">Green</option>
+										<option value="#0000FF">Blue</option>
+										<option value="#000000">Black</option>
+										<option value="#FFFFFF">White</option>
+										<option value="#00FFFF">Cyan</option>
+										<option value="#FF00FF">Magenta</option>
+										<option value="#FFFF00">Yellow</option>
+									</select>
+								</div>
+								<div class="form-group col-auto">
+									<div class="custom-control custom-radio custom-control-inline">
+										<input type="radio" id="inputAlignmentLeft" name="inputAlignment"
+											class="custom-control-input" value="left" checked="checked">
+										<label class="custom-control-label" for="inputAlignmentLeft"><i
+												class="material-icons md-18 align-text-top">format_align_left</i></label>
+									</div>
+									<div class="custom-control custom-radio custom-control-inline">
+										<input type="radio" id="inputAlignmentJustify" name="inputAlignment"
+											class="custom-control-input" value="center">
+										<label class="custom-control-label" for="inputAlignmentJustify"><i
+												class="material-icons md-18 align-text-top">format_align_justify</i></label>
+									</div>
+									<div class="custom-control custom-radio custom-control-inline">
+										<input type="radio" id="inputAlignmentRight" name="inputAlignment"
+											class="custom-control-input" value="right">
+										<label class="custom-control-label" for="inputAlignmentRight"><i
+												class="material-icons md-18 align-text-top">format_align_right</i></label>
+									</div>
+								</div>
+								<div class="form-group col-auto">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="inputFontWeight"
+											value="FontStyleBold">
+										<label class="form-check-label" for="inputFontWeight"><i
+												class="material-icons md-18 align-text-top">format_bold</i></label>
+									</div>
+								</div>
+								<div class="form-group col-auto">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="inputFontStyle"
+											value="FontStyleItalic">
+										<label class="form-check-label" for="inputFontStyle"><i
+												class="material-icons md-18 align-text-top">format_italic</i></label>
+									</div>
+								</div>
+							</div>
+						 
+							<h6>Opacity</h6>
+								<div class="form-row">
+									<div class="form-group col-auto">
+										<label for="customRangeAlpha"><i
+												class="material-icons md-18 align-text-top">light_mode</i></label>
+										<input type="range" class="custom-range" min="0" max="100" step="2" value="100"
+											id="customRangeAlpha">
+									</div>
+								</div>
+								<div class="form-group col-auto">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="svgeditmode"
+											value="svgeditvalue">
+										<label class="form-check-label" for="svgeditmode"><i
+												class="align-text-top">Make SVG Editable</i></label>
+									</div>
+								</div>
+							
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+					<!--button type="button" onclick="setObjectAttributes()" class="btn btn-sm btn-primary">Apply</button-->
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid"> 
+
+	<form action="javascript:void(0);" id="sdiAnnotationPopup" style="position: fixed; display: none; margin-top:200px; z-index:4">
+		<textarea id="sdiNoteForm" data_input="true"></textarea>
+		<button type="button" value="Save" id="saveAnnotation" onclick="saveTextBox()">Save</button>
+		<button type="button" value="Cancel" id="cancelAnnotation" onclick="hideTextBox()">Cancel</button>
+	</form>
+
+	<div class="row">
+		
+	 
+		 
+		<div class="col-12"> 
+
+
+			<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" align="center">
+				<canvas tabindex=1 class="cgm"  id="canvas1"
+					style="position:absolute;  background:transparent; left:0;right:0;margin:auto;z-index:1;margin-top:70px;  "></canvas>
+				<canvas tabindex=2 class="cgm"   id="canvas2"
+					style="position:absolute; background:transparent;  left:0;right:0;margin:auto;z-index:2;margin-top:70px;  "></canvas>
+				 
+				<canvas class="cgm"  id="canvas3"
+					style="position:absolute; background:transparent;  left:0;right:0;margin:auto;z-index:3; margin-top:70px; "></canvas> 
+					 
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<div id="linkmenu" class="linkmenu">
+	<ul class="linkmenu__items" id="menuitems2"></ul>
+</div>
+
+
+
+<div id="contextmenu" class="contextmenu">
+	<ul class="contextmenu__items" id='menuitems'>
+
+
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="linkID()" data-action="ld"><i
+					class="material-icons md-18 align-text-bottom mr-1">link </i> Get linkID</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="setfiledialog()" data-action="View"><i
+					class="material-icons md-128 align-text-bottom mr-1">folder_open</i>Open File</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="setzoom()" data-action="View"><i
+					class="material-icons md-18 align-text-bottom mr-1">photo_size_select_small</i> Select Area</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="setpanmode()" data-action="Edit"><i
+					class="material-icons md-18 align-text-bottom mr-1">pan_tool</i> Pan</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="setfit()" data-action="action"><i
+					class="material-icons md-18 align-text-bottom mr-1">zoom_out_map</i> Fit</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="clearlinks()" data-action="fit"><i
+					class="material-icons md-18 align-text-bottom mr-1">link</i> Clear Links</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="redraw()" data-action="fit"><i
+					class="material-icons md-18 align-text-bottom mr-1">refresh</i> Refresh</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="viewlinks()" data-action="fit"><i
+					class="material-icons md-18 align-text-bottom mr-1">link</i> Links</a>
+		</li>
+		<li class="contextmenu__item">
+			<a href="#" class="contextmenu__link" onclick="linkURI()" data-action="ld"><i
+					class="material-icons md-18 align-text-bottom mr-1">link</i> Follow Link</a>
+		</li>
+
+
+	</ul>
+</div>
+
+ 
+
+<!--footer class="primary-footer mt-5">
+	<div class="container" > 
+		<small id="copyright">&copy; 2021, SDI CGM View Version</small>
+	</div>
+</footer-->
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script type='text/javascript' src='js/contexthandler.js'></script>
+<script type='text/javascript' src='js/menuhandler.js'></script>
+<script type='text/javascript' src='js/fabric.js'></script>
+</body>
+
+</html>

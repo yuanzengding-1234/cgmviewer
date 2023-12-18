@@ -1,0 +1,254 @@
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+#sdiAnnotationPopup {
+	background: #f7f8fa;
+	padding: 10px;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+	box-shadow: 0px 4px 8px #888888;
+	border: 1px solid #B8B8B8;
+	text-align: right;
+}
+
+#sdiAnnotationPopup textarea {
+	display: block;
+	resize: both;
+    width: 250px;
+    height: 100px;
+	margin-bottom: 10px;
+	border: 1px solid #B8B8B8;
+}
+
+.chart {
+  
+  display: inline-block;
+  vertical-align: middle;
+  
+}
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidebar a{
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  color: #f1f1f1;
+}
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+body {
+  color: #000000;
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  font-weight: 100;
+  line-height: 1.0  ;
+  
+}
+
+.container {
+  margin: 10 auto;
+  padding: 10 14px;
+  max-width: 960px;
+}
+
+/* primary header */
+
+.primary-header {
+  padding: 24px 0;
+  text-align: center;
+  border-bottom: solid 2px #ff00ff;
+}
+
+.primary-header__title {
+  color: #590000;
+  font-size: 36px;
+}
+
+.primary-header__title small {
+  font-size: 18px;
+  color: #890000;
+}
+
+/* content */
+
+.content {
+  padding: 24px 0;
+  border-bottom: solid 0px #00ffff;
+}
+
+.content__footer {
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* footer */
+
+.primary-footer {
+  padding: 24px 0;
+  color: #898989;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* tasks */
+
+.tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: solid 1px #dfdfdf;
+}
+
+.task:last-child {
+  border-bottom: none;
+}
+
+.material-icons.md-18 {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+/* context menu */
+  
+.contextmenu {
+  display: none ;
+  position: absolute;
+  z-index: 10;
+  padding: 10px 10px;
+  width: 150px;
+  background-color: #ffffff;
+  border: none;
+  box-shadow: 1px 2px 2px 2px #9f9f9f;
+}
+contextmenu1 {
+  display: none ;
+  position: absolute;
+  z-index: 10;
+  padding: 10px 10px;
+  width: 150px;
+  background-color: #ffffff;
+  border: none;
+  box-shadow: 1px 2px 2px 2px #9f9f9f;
+}
+
+.contextmenu--active {
+  display: block;
+}
+
+.contextmenu__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contextmenu__item {
+  display: block;
+  margin: 10  0 0 10;
+   
+}
+
+.contextmenu__item:last-child {
+  margin-bottom: 0;
+}
+
+.contextmenu__link {
+  display: block;
+  padding: 1px 10px;
+  color: #555555 ;
+  text-decoration: none;
+}
+
+.contextmenu__link:hover {
+  color: #aaaaaa;
+  background-color: #000000;
+}
+
+
+.contextmenu1--active {
+  display: block;
+}
+
+.contextmenu1__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contextmenu1__item {
+  display: block;
+  margin: 10  0 0 10;
+   
+}
+
+.contextmenu1__item:last-child {
+  margin-bottom: 0;
+}
+
+.contextmenu1__link {
+  display: block;
+  padding: 1px 10px;
+  color: #555555 ;
+  text-decoration: none;
+}
+
+.contextmenu1__link:hover {
+  color: #aaaaaa;
+  background-color: #000000;
+}
+ 

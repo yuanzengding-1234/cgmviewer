@@ -13,6 +13,9 @@
   "keywords": ["cgm", "preview", "image", "conversion", "graphics"],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "tslib": "^2.6.2"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",

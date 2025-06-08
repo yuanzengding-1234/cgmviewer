@@ -1,0 +1,30 @@
+{
+  "name": "cgm-preview",
+  "version": "1.0.0",
+  "description": "A JavaScript package for previewing CGM files and converting them to images",
+  "main": "dist/cgm-preview.js",
+  "module": "dist/cgm-preview.esm.js",
+  "types": "dist/cgm-preview.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest"
+  },
+  "keywords": ["cgm", "preview", "image", "conversion", "graphics"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/jest": "^29.5.8",
+    "jest": "^29.7.0",
+    "rollup": "^4.6.1",
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist/",
+    "wasm/",
+    "README.md"
+  ]
+}

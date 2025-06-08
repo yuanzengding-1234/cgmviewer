@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGM Preview Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .preview-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .preview-image {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .option-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>CGM Preview Example</h1>
+    
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <p>Click here to select a CGM file or drag and drop</p>
+        <input type="file" id="fileInput" accept=".cgm" style="display: none;">
+    </div>
+
+    <div class="options">
+        <div class="option-group">
+            <label for="width">Width:</label>
+            <input type="number" id="width" value="800" min="100" max="4000">
+        </div>
+        <div class="option-group">
+            <label for="height">Height:</label>
+            <input type="number" id="height" value="600" min="100" max="4000">
+        </div>
+        <div class="option-group">
+            <label for="format">Format:</label>
+            <select id="format">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WebP</option>
+            </select>
+        </div>
+        <div class="option-group">
+            <label for="quality">Quality:</label>
+            <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.9">
+            <span id="qualityValue">0.9</span>
+        </div>
+        <div class="option-group">
+            <label for="backgroundColor">Background:</label>
+            <input type="color" id="backgroundColor" value="#ffffff">
+        </div>
+    </div>
+
+    <button id="convertBtn" disabled>Convert CGM to Image</button>
+
+    <div id="message"></div>
+
+    <div class="preview-container" id="previewContainer" style="display: none;">
+        <h3>Preview:</h3>
+        <img id="previewImage" class="preview-image" alt="CGM Preview">
+        <div>
+            <button id="downloadBtn">Download Image</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { cgmToImage } from '../dist/cgm-preview.esm.js';
+
+        let selectedFile = null;
+        let currentResult = null;
+
+        // File input handling
+        const fileInput = document.getElementById('fileInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const messageDiv = document.getElementById('message');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const qualitySlider = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
+
+        // Update quality display
+        qualitySlider.addEventListener('input', (e) => {
+            qualityValue.textContent = e.target.value;
+        });
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                convertBtn.disabled = false;
+                showMessage(`Selected: ${file.name}`, 'success');
+            }
+        });
+
+        // Drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#007bff';
+            uploadArea.style.backgroundColor = '#f8f9fa';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.toLowerCase().endsWith('.cgm')) {
+                    selectedFile = file;
+                    convertBtn.disabled = false;
+                    showMessage(`Selected: ${file.name}`, 'success');
+                } else {
+                    showMessage('Please select a CGM file', 'error');
+                }
+            }
+        });
+
+        // Convert button
+        convertBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            convertBtn.disabled = true;
+            showMessage('Converting CGM file...', 'info');
+
+            try {
+                const options = {
+                    width: parseInt(document.getElementById('width').value),
+                    height: parseInt(document.getElementById('height').value),
+                    format: document.getElementById('format').value,
+                    quality: parseFloat(document.getElementById('quality').value),
+                    backgroundColor: document.getElementById('backgroundColor').value
+                };
+
+                currentResult = await cgmToImage(selectedFile, options);
+                
+                // Show preview
+                previewImage.src = currentResult.dataUrl;
+                previewContainer.style.display = 'block';
+                
+                showMessage(`Successfully converted! Image size: ${currentResult.width}x${currentResult.height}`, 'success');
+            } catch (error) {
+                showMessage(`Error converting CGM: ${error.message}`, 'error');
+                console.error('Conversion error:', error);
+            } finally {
+                convertBtn.disabled = false;
+            }
+        });
+
+        // Download button
+        downloadBtn.addEventListener('click', () => {
+            if (!currentResult) return;
+
+            const link = document.createElement('a');
+            link.href = currentResult.dataUrl;
+            link.download = `cgm-preview.${document.getElementById('format').value}`;
+            link.click();
+        });
+
+        function showMessage(text, type) {
+            messageDiv.innerHTML = `<div class="${type}">${text}</div>`;
+        }
+    </script>
+</body>
+</html>
